@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+
+  db:
+    image: postgres:15
+    container_name: db_container
+    restart: always
+    environment:
+      POSTGRES_USER: tradex_user
+      POSTGRES_PASSWORD: tradex_pass
+      POSTGRES_DB: tradex_db
+    volumes:
+      - tradex_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    container_name: backend_container
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://tradex_user:tradex_pass@db:5432/tradex_db
+    ports:
+      - "8000:8000"
+
+  client:
+    build: ./client
+    container_name: client_container
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  tradex_db_data:

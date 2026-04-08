@@ -40,7 +40,7 @@ function TradingModal({ ticker, marketPrices, cashAvailable, portfolio, onClose,
     const qty = tradeType === 'BUY' ? parseInt(quantity) : -parseInt(quantity);
 
     try {
-      const response = await axios.post('http://localhost:8000/trade', {
+      const response = await axios.post('http://52.21.215.62:8000/trade', {
         user_id: userId,
         ticker: selectedTicker,
         quantity: qty

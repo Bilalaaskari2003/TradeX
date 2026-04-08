@@ -1,0 +1,43 @@
+version: '3'
+services:
+  db_jenkins:
+    image: postgres:15
+    container_name: db_jenkins_container
+    restart: always
+    environment:
+      POSTGRES_USER: tradex_user
+      POSTGRES_PASSWORD: tradex_pass
+      POSTGRES_DB: tradex_db
+    volumes:
+      - tradex_db_jenkins_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  backend_jenkins:
+    image: python:3.11-slim
+    container_name: backend_jenkins_container
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    command: sh -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8001"
+    depends_on:
+      - db_jenkins
+    environment:
+      DATABASE_URL: postgresql://tradex_user:tradex_pass@db_jenkins:5432/tradex_db
+    ports:
+      - "8001:8001"
+
+  client_jenkins:
+    image: node:18-slim
+    container_name: client_jenkins_container
+    working_dir: /app/client
+    volumes:
+      - .:/app
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - backend_jenkins
+    ports:
+      - "3001:3000"
+
+volumes:
+  tradex_db_jenkins_data:

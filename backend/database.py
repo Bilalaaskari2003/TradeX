@@ -3,10 +3,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # --------------------------------------------------------
-# UPDATE THIS LINE WITH YOUR OWN DATABASE PASSWORD
-# Format: postgresql://username:password@localhost/db_name
+# DATABASE URL - use the 'db' service name inside Docker
+# Format: postgresql://username:password@service_name/db_name
 # --------------------------------------------------------
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:post001@localhost/stock_app_db"
+SQLALCHEMY_DATABASE_URL = "postgresql://tradex_user:tradex_pass@db:5432/tradex_db"
 
 # Create the engine (the connection to the DB)
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
