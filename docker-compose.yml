@@ -1,7 +1,6 @@
 version: '3'
 
 services:
-
   db:
     image: postgres:15
     container_name: db_container
@@ -14,6 +13,8 @@ services:
       - tradex_db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - tradex-network-part1
 
   backend:
     build: ./backend
@@ -24,6 +25,8 @@ services:
       DATABASE_URL: postgresql://tradex_user:tradex_pass@db:5432/tradex_db
     ports:
       - "8000:8000"
+    networks:
+      - tradex-network-part1
 
   client:
     build: ./client
@@ -32,6 +35,12 @@ services:
       - backend
     ports:
       - "3000:3000"
+    networks:
+      - tradex-network-part1
 
 volumes:
   tradex_db_data:
+
+networks:
+  tradex-network-part1:         # ✅ Separate network for Part 1
+    driver: bridge

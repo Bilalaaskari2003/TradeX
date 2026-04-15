@@ -1,5 +1,7 @@
 version: '3'
+
 services:
+  # PostgreSQL Database for Part II
   db_jenkins:
     image: postgres:15
     container_name: db_jenkins_container
@@ -12,32 +14,53 @@ services:
       - tradex_db_jenkins_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    networks:
+      - tradex-network-part2
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tradex_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # FastAPI Backend for Part II
   backend_jenkins:
     image: python:3.11-slim
     container_name: backend_jenkins_container
-    working_dir: /app/backend
+    working_dir: /app
     volumes:
-      - .:/app
-    command: sh -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8001"
+      - ./backend:/app
+    command: sh -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8001 --reload"
     depends_on:
-      - db_jenkins
+      db_jenkins:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://tradex_user:tradex_pass@db_jenkins:5432/tradex_db
     ports:
       - "8001:8001"
+    networks:
+      - tradex-network-part2
 
+  # React Frontend for Part II
   client_jenkins:
-    image: node:18-slim
+    image: node:20-alpine
     container_name: client_jenkins_container
-    working_dir: /app/client
+    working_dir: /app
     volumes:
-      - .:/app
-    command: sh -c "npm install && npm start"
-    depends_on:
-      - backend_jenkins
+      - ./client:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
+    environment:
+      REACT_APP_API_URL: http://54.209.78.237:8001
     ports:
       - "3001:3000"
+    depends_on:
+      - backend_jenkins
+    networks:
+      - tradex-network-part2
 
 volumes:
   tradex_db_jenkins_data:
+
+networks:
+  tradex-network-part2:
+    driver: bridge

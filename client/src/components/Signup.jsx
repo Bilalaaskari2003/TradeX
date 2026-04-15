@@ -52,7 +52,7 @@ function Signup() {
     }
 
     try {
-      const response = await axios.post('http://52.21.215.62:8000/users/', {
+      const response = await axios.post('http://54.209.78.237:8000/users/', {
         username: username.trim(),
         email: email.trim(),
         password: password
